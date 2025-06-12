@@ -5,7 +5,6 @@ export interface IElectronAPI {
     onPathsUpdated: (callback: (newPaths: PathNode[]) => void) => void;
     updatePaths: (paths: PathNode[]) => void;
     generateReport: (paths: string[]) => Promise<string>;
-    onReportGenerated: (callback: (report: string) => void) => void;
 }
 
 export interface PathNode {

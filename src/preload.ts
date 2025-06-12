@@ -17,9 +17,6 @@ const electronApi: IElectronAPI = {
     },
     generateReport: (paths: string[]): Promise<string> => {
         return ipcRenderer.invoke('generate-report', paths);
-    },
-    onReportGenerated: (callback: (report: string) => void) => {
-        ipcRenderer.on('report-generated', (_, report) => callback(report));
     }
 };
 

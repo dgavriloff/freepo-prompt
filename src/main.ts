@@ -152,15 +152,21 @@ ipcMain.on('update-paths', async (event, paths: PathNode[]) => {
 });
 
 ipcMain.handle('generate-report', async (event, paths: string[]) => {
-    const scriptPath = path.join(__dirname, '..', 'generate_report.sh');
+    const scriptPath = path.join(__dirname, '..', 'generate_report');
     const tempFilePath = path.join(tmpdir(), `freepo-paths-${Date.now()}.txt`);
+    const projectFilePath = path.join(__dirname, '..', `freepo-paths-${Date.now()}.txt`);
     const pathsString = paths.join('\n');
 
     try {
+        // Save to both temp and project directory
         await fs.promises.writeFile(tempFilePath, pathsString);
+        await fs.promises.writeFile(projectFilePath, pathsString);
+        console.log(`Debug: Paths written to temp file: ${tempFilePath}`);
+        console.log(`Debug: Paths written to project file: ${projectFilePath}`);
 
         return new Promise((resolve, reject) => {
-            exec(`bash "${scriptPath}" "${tempFilePath}"`, { maxBuffer: 1024 * 1024 * 50 }, (error, stdout, stderr) => {
+            // Execute the compiled C++ program
+            exec(`"${scriptPath}" "${tempFilePath}"`, { maxBuffer: 1024 * 1024 * 50 }, (error, stdout, stderr) => {
                 if (stdout) {
                     process.stdout.write(`--- SCRIPT STDOUT ---\n${stdout}\n---------------------\n`);
                 }
@@ -169,10 +175,9 @@ ipcMain.handle('generate-report', async (event, paths: string[]) => {
                 }
                 if (error) {
                     console.error(`exec error: ${error}`);
-                    fs.promises.unlink(tempFilePath); // Clean up temp file
                     return reject(stderr);
                 }
-                fs.promises.unlink(tempFilePath); // Clean up temp file
+                // Removed the file deletion for debugging
                 resolve(stdout);
             });
         });

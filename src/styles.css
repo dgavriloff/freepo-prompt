@@ -56,13 +56,16 @@ body {
 
 .button-container {
     display: flex;
+    flex-direction: row;
     gap: 8px;
     margin-bottom: 20px;
+    width: 100%;
 }
 
 .add-button, .remove-button, .generate-button {
-    flex: 1;
-    padding: 12px;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 12px 8px;
     color: white;
     border: none;
     border-radius: 6px;
@@ -71,8 +74,10 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 4px;
     transition: background-color 0.3s;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .add-button {
@@ -255,46 +260,94 @@ body {
 .main-content {
     flex-grow: 1;
     padding: 20px;
-    background-color: #ffffff;
-    color: #000000;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
 }
 
 .text-container {
     flex-grow: 1;
-    background-color: #fafafa;
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    padding: 15px;
-    overflow-y: auto; /* Only allow vertical scroll */
+    overflow-y: auto;
+    background-color: #34495e;
+    border-radius: 6px;
+    padding: 20px;
+    font-family: monospace;
+    white-space: pre-wrap;
 }
 
-.text-container pre {
-    white-space: pre-wrap;   /* Wrap lines like a terminal */
-    word-break: break-all;   /* Break long paths without spaces */
-    margin: 0;
-}
-
-/* Custom scrollbar styling */
+/* Custom scrollbar for text container */
 .text-container::-webkit-scrollbar {
     width: 12px;
-    display: block;
 }
 
 .text-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: #2c3e50;
     border-radius: 6px;
 }
 
 .text-container::-webkit-scrollbar-thumb {
-    background: #888;
+    background: #4a627a;
     border-radius: 6px;
-    border: 2px solid #f1f1f1;
+    border: 3px solid #2c3e50;
 }
 
 .text-container::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: #5a6b7c;
+}
+
+.footer {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #2c3e50;
+    border-radius: 6px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.copy-button {
+    padding: 12px 20px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.3s;
+}
+
+.copy-button:hover {
+    background-color: #2980b9;
+}
+
+.copy-button:active {
+    transform: translateY(1px);
+}
+
+.copy-icon {
+    font-size: 16px;
+}
+
+/* Custom scrollbar for path list */
+.path-list-container::-webkit-scrollbar {
+    width: 12px;
+}
+
+.path-list-container::-webkit-scrollbar-track {
+    background: #2c3e50;
+    border-radius: 6px;
+}
+
+.path-list-container::-webkit-scrollbar-thumb {
+    background: #4a627a;
+    border-radius: 6px;
+    border: 3px solid #2c3e50;
+}
+
+.path-list-container::-webkit-scrollbar-thumb:hover {
+    background: #5a6b7c;
 }
 
 .resize-handle {
@@ -327,4 +380,15 @@ body {
 .resize-handle:hover::before {
     background: #ffffff;
     box-shadow: 0 -7px 0 #ffffff, 0 7px 0 #ffffff;
+}
+
+.add-button span, .remove-button span, .generate-button span {
+    flex-shrink: 0;
+}
+
+.add-button::after, .remove-button::after, .generate-button::after {
+    content: attr(data-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 } 

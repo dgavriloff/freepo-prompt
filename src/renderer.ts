@@ -143,20 +143,53 @@ function removeSelectedPaths() {
     updateGenerateButtonState();
 }
 
+function escapeHtml(unsafe: string): string {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function estimateTokenCount(text: string): number {
+    // Split by whitespace and count words
+    const words = text.trim().split(/\s+/);
+    let count = words.length;
+    
+    // Add extra tokens for special characters and punctuation
+    const specialChars = text.match(/[.,!?;:()[\]{}"'`]/g) || [];
+    count += specialChars.length;
+    
+    // Add tokens for XML tags
+    const xmlTags = text.match(/<[^>]+>/g) || [];
+    count += xmlTags.length;
+    
+    return count;
+}
+
 async function generateReport() {
     const generateButton = document.querySelector('.generate-button') as HTMLButtonElement;
     const textContainer = document.getElementById('text-container');
-    if (!generateButton || !textContainer) return;
+    const copyButton = document.getElementById('copy-button');
+    if (!generateButton || !textContainer || !copyButton) return;
 
     generateButton.disabled = true;
     textContainer.innerHTML = '<em>Generating report...</em>';
+    copyButton.style.display = 'none';
 
     try {
         const selectedPaths = getSelectedPaths(currentPaths);
         const report = await window.electron.generateReport(selectedPaths);
-        textContainer.innerHTML = `<pre>${report}</pre>`;
+        textContainer.innerHTML = `<pre>${escapeHtml(report)}</pre>`;
+        copyButton.style.display = 'flex';
+        
+        // Update token count
+        const tokenCount = estimateTokenCount(report);
+        copyButton.innerHTML = `<span class="copy-icon">📋</span> Copy to Clipboard (${tokenCount.toLocaleString()} tokens)`;
     } catch (error) {
         textContainer.innerHTML = `<strong>Error generating report:</strong><pre>${error}</pre>`;
+        copyButton.style.display = 'none';
     } finally {
         updateGenerateButtonState();
     }
@@ -166,6 +199,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const addButton = document.querySelector('.add-button');
     const removeButton = document.querySelector('.remove-button');
     const generateButton = document.querySelector('.generate-button');
+    const copyButton = document.getElementById('copy-button');
     const textContainer = document.getElementById('text-container');
     
     if (textContainer) {
@@ -175,18 +209,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     addButton?.addEventListener('click', () => window.electron.openFilePicker());
     removeButton?.addEventListener('click', removeSelectedPaths);
     generateButton?.addEventListener('click', generateReport);
+    copyButton?.addEventListener('click', () => {
+        const pre = textContainer?.querySelector('pre');
+        if (pre) {
+            const text = pre.textContent || '';
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    const tokenCount = estimateTokenCount(text);
+                    copyButton.innerHTML = `<span class="copy-icon">✓</span> Copied! (${tokenCount.toLocaleString()} tokens)`;
+                    setTimeout(() => {
+                        copyButton.innerHTML = `<span class="copy-icon">📋</span> Copy to Clipboard (${tokenCount.toLocaleString()} tokens)`;
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Failed to copy text: ', err);
+                });
+        }
+    });
 
     window.electron.onPathsUpdated(newPaths => {
         currentPaths = newPaths;
         render(currentPaths);
         updateRemoveButtonState();
         updateGenerateButtonState();
-    });
-
-    window.electron.onReportGenerated(report => {
-        if (textContainer) {
-            textContainer.innerHTML = `<pre>${report}</pre>`;
-        }
     });
 
     const initialPaths = await window.electron.loadInitialPaths();

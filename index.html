@@ -8,17 +8,14 @@
 <body>
     <div class="sidebar">
         <div class="button-container">
-            <button class="add-button">
+            <button class="add-button" data-text="Add Directory/File">
                 <span class="plus-icon">+</span>
-                Add Directory/File
             </button>
-            <button class="remove-button" disabled>
+            <button class="remove-button" disabled data-text="Remove Selected">
                 <span class="minus-icon">−</span>
-                Remove Selected
             </button>
-            <button class="generate-button" disabled>
+            <button class="generate-button" disabled data-text="Generate">
                 <span class="generate-icon">📄</span>
-                Generate
             </button>
         </div>
         <div class="path-list-container">
@@ -30,6 +27,12 @@
     <div class="resize-handle"></div>
     <div class="main-content">
         <div id="text-container" class="text-container"></div>
+        <div class="footer">
+            <button id="copy-button" class="copy-button" style="display: none;">
+                <span class="copy-icon">📋</span>
+                Copy to Clipboard
+            </button>
+        </div>
     </div>
     <script type="module" src="dist/renderer.js"></script>
 </body>

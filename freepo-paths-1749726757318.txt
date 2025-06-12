@@ -1,0 +1,5 @@
+/Users/denisgavriloff/Documents/scripts/UserManagement
+/Users/denisgavriloff/Documents/scripts/UserManagement/firebase-cli-key.json
+/Users/denisgavriloff/Documents/scripts/UserManagement/index.js
+/Users/denisgavriloff/Documents/scripts/UserManagement/package-lock.json
+/Users/denisgavriloff/Documents/scripts/UserManagement/package.json
