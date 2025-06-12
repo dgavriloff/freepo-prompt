@@ -151,39 +151,34 @@ ipcMain.on('update-paths', async (event, paths: PathNode[]) => {
   event.sender.send('paths-updated', paths);
 });
 
-ipcMain.handle('generate-report', async (event, paths: string[]) => {
-    const scriptPath = path.join(__dirname, '..', 'generate_report');
-    const tempFilePath = path.join(tmpdir(), `freepo-paths-${Date.now()}.txt`);
-    const projectFilePath = path.join(__dirname, '..', `freepo-paths-${Date.now()}.txt`);
-    const pathsString = paths.join('\n');
-
+ipcMain.handle('generate-report', async (_, paths: string[]) => {
     try {
-        // Save to both temp and project directory
-        await fs.promises.writeFile(tempFilePath, pathsString);
-        await fs.promises.writeFile(projectFilePath, pathsString);
-        console.log(`Debug: Paths written to temp file: ${tempFilePath}`);
-        console.log(`Debug: Paths written to project file: ${projectFilePath}`);
-
-        return new Promise((resolve, reject) => {
-            // Execute the compiled C++ program
-            exec(`"${scriptPath}" "${tempFilePath}"`, { maxBuffer: 1024 * 1024 * 50 }, (error, stdout, stderr) => {
-                if (stdout) {
-                    process.stdout.write(`--- SCRIPT STDOUT ---\n${stdout}\n---------------------\n`);
+        // Create a temporary file for the C++ generator
+        const tempFilePath = path.join(tmpdir(), `freepo-paths-${Date.now()}.txt`);
+        await fs.promises.writeFile(tempFilePath, paths.join('\n'));
+        
+        // Run the C++ generator
+        const result = await new Promise<string>((resolve, reject) => {
+            exec(`./generate_report "${tempFilePath}"`, (error, stdout, stderr) => {
+                if (error) {
+                    reject(`Error: ${error.message}`);
+                    return;
                 }
                 if (stderr) {
-                    process.stderr.write(`--- SCRIPT STDERR ---\n${stderr}\n---------------------\n`);
+                    reject(`Error: ${stderr}`);
+                    return;
                 }
-                if (error) {
-                    console.error(`exec error: ${error}`);
-                    return reject(stderr);
-                }
-                // Removed the file deletion for debugging
                 resolve(stdout);
             });
         });
-    } catch (writeError) {
-        console.error(`Error writing temp file: ${writeError}`);
-        throw writeError;
+
+        // Clean up the temporary file
+        await fs.promises.unlink(tempFilePath);
+        
+        return result;
+    } catch (error) {
+        console.error('Error generating report:', error);
+        throw error;
     }
 });
 
