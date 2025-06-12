@@ -210,6 +210,46 @@ if [[ ! "$common_root" == /* ]]; then
     common_root="$(pwd)/$common_root"
 fi
 
+# --- IGNORE LOGIC ---
+declare -a ignore_patterns
+declare -a find_prune_args
+ignore_file_name=".repoignore"
+
+# Find and load ignore patterns from the selected directory and the app's root
+if [ -f "$common_root/$ignore_file_name" ]; then
+    while IFS= read -r line; do
+        ignore_patterns+=("$line")
+    done < "$common_root/$ignore_file_name"
+fi
+
+script_dir=$(dirname "$(readlink -f "$0")")
+if [ -f "$script_dir/$ignore_file_name" ]; then
+    while IFS= read -r line; do
+        ignore_patterns+=("$line")
+    done < "$script_dir/$ignore_file_name"
+fi
+
+tree_ignore_pattern=""
+for pattern in "${ignore_patterns[@]}"; do
+    if [[ "$pattern" =~ ^\s*# ]] || [[ -z "$pattern" ]]; then
+        continue
+    fi
+    clean_pattern=${pattern%/} # Remove trailing slash for matching
+    
+    # Build pattern for 'tree' command
+    if [ -z "$tree_ignore_pattern" ]; then
+        tree_ignore_pattern="$clean_pattern"
+    else
+        tree_ignore_pattern+="|$clean_pattern"
+    fi
+
+    # Build prune arguments for 'find' command
+    if [ ${#find_prune_args[@]} -gt 0 ]; then
+        find_prune_args+=(-o)
+    fi
+    find_prune_args+=(-name "$clean_pattern")
+done
+# --- END IGNORE LOGIC ---
 
 echo "<file_map>"
 echo "  $common_root"
@@ -390,21 +430,12 @@ if command -v tree &> /dev/null; then
 
     echo "Directory for tree command: $tree_root"
 
-    if [ -d "$tree_root" ]; then
-        # The `--noreport` suppresses file/directory count.
-        # `--charset=ascii` for consistent output without special chars.
-        # `--dirsfirst` for directories before files.
-        # `-I` can exclude patterns, but for the example, we want everything.
-        # `-L 2` or `-L 3` might be needed depending on the depth.
-        # Given the example output, it seems to be a specific depth of the directory structure.
-        # We need to capture the output of `tree` and indent it.
-        # Using a subshell for `tree` to capture output.
-        tree_output=$(tree -a "$tree_root" --noreport -L 3 --charset=ascii) # Adjust -L as needed
-        # Indent each line of the tree output
-        echo "$tree_output" | sed 's/^/  /'
-    else
-        echo "  Error: Base directory for file map not found: $tree_root"
+    tree_args=(-a "$tree_root" --noreport -L 3 --charset=ascii)
+    if [ -n "$tree_ignore_pattern" ]; then
+        tree_args+=(-I "$tree_ignore_pattern")
     fi
+    tree_output=$(tree "${tree_args[@]}")
+    echo "$tree_output" | sed 's/^/  /'
 else
     echo "  The 'tree' command is required to generate the file map. Please install it (e.g., 'sudo apt-get install tree' or 'brew install tree')."
     echo "  Alternatively, a simplified manual directory listing will be provided."
@@ -452,7 +483,13 @@ for full_path in "${sorted_input_paths[@]}"; do
             processed_files_map["$full_path"]=1
         fi
     else
-        # If it's a directory, find all files within it and add them
+        # If it's a directory, find all files within it, respecting the ignore patterns
+        find_command=(find "$full_path")
+        if [ ${#find_prune_args[@]} -gt 0 ]; then
+            find_command+=(\( "${find_prune_args[@]}" \) -prune -o)
+        fi
+        find_command+=(-type f -print0)
+
         while IFS= read -r -d $'\0'; do
             if [[ -f "$REPLY" ]]; then
                 if [[ -z "${processed_files_map["$REPLY"]}" ]]; then
@@ -460,7 +497,7 @@ for full_path in "${sorted_input_paths[@]}"; do
                     processed_files_map["$REPLY"]=1
                 fi
             fi
-        done < <(find "$full_path" -type f -print0 | sort -z)
+        done < <("${find_command[@]}" | sort -z)
     fi
 done
 

@@ -33,17 +33,16 @@ async function buildTreeForRoot(rootPath: string): Promise<PathNode | null> {
 
     async function buildRecursive(currentPath: string): Promise<PathNode | null> {
         const stats = await fs.promises.stat(currentPath);
-        let relativeToRoot = path.relative(baseDir, currentPath);
+        
+        // Only check paths that are children of the base directory.
+        if (currentPath !== baseDir) {
+            let relativeToRoot = path.relative(baseDir, currentPath);
 
-        // The root directory itself (where relativeToRoot is an empty string)
-        // should not be ignored. Only check children.
-        if (relativeToRoot) {
+            // Ensure directory-specific patterns are matched correctly.
             if (stats.isDirectory()) {
-                // Add a trailing slash to directory paths to ensure
-                // directory-specific patterns in .repoignore are matched correctly.
-                relativeToRoot = path.join(relativeToRoot, path.sep);
+                relativeToRoot += '/';
             }
-    
+
             if (ig.ignores(relativeToRoot)) {
                 return null;
             }
