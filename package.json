@@ -8,7 +8,7 @@
     "dev": "tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && electron .",
     "build": "tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && electron-builder",
     "build:mac": "tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && electron-builder --mac",
-    "build:win": "tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && electron-builder --win --x64",
+    "build:win": "tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && electron-builder --win --x64 --publish never",
     "build:linux": "tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && electron-builder --linux"
   },
   "build": {
@@ -48,6 +48,10 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "FreePO Prompt"
+    },
+    "publish": {
+      "provider": "github",
+      "releaseType": "draft"
     }
   },
   "author": "",
