@@ -1,20 +1,64 @@
 {
   "name": "freepo-prompt",
   "version": "1.0.0",
-  "description": "TypeScript Electron Application",
+  "description": "FreePO Prompt Generator",
   "main": "dist/main.js",
   "scripts": {
     "start": "electron .",
     "dev": "tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && electron .",
-    "build": "tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json",
-    "watch": "tsc -p tsconfig.main.json -w & tsc -p tsconfig.renderer.json -w"
+    "build": "tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && electron-builder",
+    "build:mac": "tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && electron-builder --mac",
+    "build:win": "tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && electron-builder --win --x64",
+    "build:linux": "tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && electron-builder --linux"
+  },
+  "build": {
+    "appId": "com.freepo.prompt",
+    "productName": "FreePO Prompt",
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "target": ["dmg", "zip"],
+      "icon": "build/icon.icns"
+    },
+    "win": {
+      "target": ["nsis", "portable"],
+      "icon": "build/icon.ico",
+      "artifactName": "${productName}-Setup-${version}.${ext}",
+      "publisherName": "FreePO",
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "icon": "build/icon.png"
+    },
+    "files": [
+      "dist/**/*",
+      "node_modules/**/*",
+      "generate_report",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "generate_report",
+        "to": "generate_report"
+      }
+    ],
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "FreePO Prompt"
+    }
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3",
+    "typescript": "^5.4.2"
   },
   "dependencies": {
-    "electron": "^28.0.0",
-    "ignore": "^7.0.5"
-  },
-  "devDependencies": {
-    "@types/node": "^18.19.111",
-    "typescript": "^5.0.0"
+    "ignore": "^5.2.4"
   }
 }
