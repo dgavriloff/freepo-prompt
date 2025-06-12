@@ -157,9 +157,15 @@ ipcMain.handle('generate-report', async (_, paths: string[]) => {
         const tempFilePath = path.join(tmpdir(), `freepo-paths-${Date.now()}.txt`);
         await fs.promises.writeFile(tempFilePath, paths.join('\n'));
         
+        // Get the path to the generate_report executable
+        const isDev = process.env.NODE_ENV === 'development';
+        const generateReportPath = isDev 
+            ? path.join(__dirname, '..', 'generate_report')
+            : path.join(process.resourcesPath, 'generate_report');
+        
         // Run the C++ generator
         const result = await new Promise<string>((resolve, reject) => {
-            exec(`./generate_report "${tempFilePath}"`, (error, stdout, stderr) => {
+            exec(`"${generateReportPath}" "${tempFilePath}"`, (error, stdout, stderr) => {
                 if (error) {
                     reject(`Error: ${error.message}`);
                     return;

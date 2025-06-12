@@ -33,13 +33,13 @@
     "files": [
       "dist/**/*",
       "node_modules/**/*",
-      "generate_report",
       "package.json"
     ],
     "extraResources": [
       {
         "from": "generate_report",
-        "to": "generate_report"
+        "to": "generate_report",
+        "filter": ["**/*"]
       }
     ],
     "nsis": {
