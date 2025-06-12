@@ -1,0 +1,11 @@
+# Ignore standard directories
+node_modules/
+.git/
+dist/
+
+# Ignore build artifacts
+*.tsbuildinfo
+
+# Ignore system files
+.DS_Store
+Thumbs.db 

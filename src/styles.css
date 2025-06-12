@@ -1,0 +1,330 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    display: flex;
+    height: 100vh;
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    overflow: hidden; /* Prevent body from scrolling */
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #2c3e50;
+    color: white;
+    padding: 10px;
+    min-width: 250px;
+    max-width: 33vw;
+    height: 100vh;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-menu {
+    list-style: none;
+}
+
+.sidebar-menu li {
+    margin-bottom: 10px;
+}
+
+.sidebar-menu a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.sidebar-menu a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.button-container {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.add-button, .remove-button, .generate-button {
+    flex: 1;
+    padding: 12px;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background-color 0.3s;
+}
+
+.add-button {
+    background-color: #3498db;
+}
+
+.add-button:hover {
+    background-color: #2980b9;
+}
+
+.remove-button {
+    background-color: #e74c3c;
+}
+
+.remove-button:hover:not(:disabled) {
+    background-color: #c0392b;
+}
+
+.remove-button:disabled,
+.generate-button:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.generate-button {
+    background-color: #27ae60;
+}
+
+.generate-button:hover:not(:disabled) {
+    background-color: #2ecc71;
+}
+
+.plus-icon, .minus-icon, .generate-icon {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.path-list-container {
+    margin-top: 20px;
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.path-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.path-list .path-list {
+    padding-left: 12px;
+    margin-left: 12px;
+    border-left: 1px solid #5a6b7c;
+}
+
+.path-list-item {
+    margin-bottom: 4px;
+    margin-top: 4px;/* Default gap for child nodes */
+    position: relative;
+}
+
+/* A larger gap for the top-level root nodes */
+#path-list > .path-list-item {
+    margin-bottom: 8px;
+}
+
+/* Horizontal connector line (e.g., in `├` or `└`) */
+.path-list-item > .path-list > .path-list-item::before {
+    content: '';
+    position: absolute;
+    top: 13px;
+    left: -12px;
+    width: 11px;
+    height: 1px;
+    background: #5a6b7c;
+}
+
+/* Masks the vertical line below the last item in a sub-list */
+.path-list-item > .path-list > .path-list-item:last-child::after {
+    content: '';
+    position: absolute;
+    top: 14px;
+    left: -12px;
+    width: 1px;
+    bottom: 0;
+    background: #2c3e50; /* Use sidebar background to hide the line */
+}
+
+.path-item-container {
+    display: flex;
+    align-items: center;
+    padding: 5px 8px;
+    background-color: #34495e;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.path-item-container:hover {
+    background-color: #4a627a;
+}
+
+.path-list-item input[type="checkbox"] {
+    margin-right: 8px;
+    accent-color: #3498db;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: 2px solid #3498db;
+    background-color: transparent;
+    position: relative;
+    transition: background-color 0.2s;
+}
+
+.path-list-item input[type="checkbox"]:checked {
+    background-color: #3498db;
+}
+
+.path-list-item input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    top: 0px;
+    left: 4px;
+    width: 5px;
+    height: 10px;
+    border: solid #2c3e50;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.path-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+    cursor: default;
+    font-size: 13px;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.arrow {
+    margin-left: auto;
+    padding: 0 8px;
+    font-size: 16px;
+    color: #3498db;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    user-select: none;
+}
+
+.arrow.expanded {
+    transform: rotate(90deg);
+}
+
+.dropdown {
+    display: none;
+    padding: 10px;
+    background-color: #2c3e50;
+    border-radius: 0 0 5px 5px;
+    margin-top: -5px;
+    margin-bottom: 5px;
+}
+
+.dropdown.visible {
+    display: block;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    background-color: #ffffff;
+    color: #000000;
+    display: flex;
+    flex-direction: column;
+}
+
+.text-container {
+    flex-grow: 1;
+    background-color: #fafafa;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 15px;
+    overflow-y: auto; /* Only allow vertical scroll */
+}
+
+.text-container pre {
+    white-space: pre-wrap;   /* Wrap lines like a terminal */
+    word-break: break-all;   /* Break long paths without spaces */
+    margin: 0;
+}
+
+/* Custom scrollbar styling */
+.text-container::-webkit-scrollbar {
+    width: 12px;
+    display: block;
+}
+
+.text-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 6px;
+}
+
+.text-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 6px;
+    border: 2px solid #f1f1f1;
+}
+
+.text-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.resize-handle {
+    width: 5px;
+    cursor: col-resize;
+    background-color: transparent;
+    transition: background-color 0.2s;
+    position: relative;
+}
+
+.resize-handle::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 5px;
+    height: 5px;
+    background: #8a9bad;
+    border-radius: 50%;
+    box-shadow: 0 -7px 0 #8a9bad, 0 7px 0 #8a9bad;
+    transition: background-color 0.2s, box-shadow 0.2s;
+    margin-left: -5px;
+}
+
+.resize-handle:hover {
+    background-color: #3498db;
+}
+
+.resize-handle:hover::before {
+    background: #ffffff;
+    box-shadow: 0 -7px 0 #ffffff, 0 7px 0 #ffffff;
+} 
